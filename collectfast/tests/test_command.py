@@ -81,14 +81,9 @@ def test_non_s3_storage(case):
 )
 @with_bucket
 def test_enabled_with_non_s3_storage(case):
-    """
-    Running collectfast in enabled mode with a storage type other than S3 should
-    exit with an error.
-    """
     clean_static_dir()
     create_static_file()
-    with case.assertRaises(RuntimeError):
-        call_collectstatic()
+    call_collectstatic()
 
 
 @test

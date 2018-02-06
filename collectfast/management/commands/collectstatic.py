@@ -2,9 +2,10 @@ from __future__ import with_statement, unicode_literals
 from multiprocessing.dummy import Pool
 import warnings
 
-from django.conf import settings as django_settings
 from django.contrib.staticfiles.management.commands import collectstatic
 from django.utils.encoding import smart_str
+from storages.backends.s3boto import S3BotoStorage
+from storages.backends.s3boto3 import S3Boto3Storage
 
 from collectfast.etag import should_copy_file
 from collectfast.boto import reset_connection
@@ -40,12 +41,8 @@ class Command(collectstatic.Command):
         self.etags = {}
         self.collectfast_enabled = settings.enabled
         if settings.enabled:
-            if django_settings.STATICFILES_STORAGE not in VALID_BACKENDS:
-                raise RuntimeError(
-                    "Collectfast is intended to work with an S3 storage "
-                    "backend only."
-                )
-            if self.storage.preload_metadata is not True:
+            if (self._is_s3_backend(self.storage)
+                    and self.storage.preload_metadata is not True):
                 self.storage.preload_metadata = True
                 warnings.warn(
                     "Collectfast does not work properly without "
@@ -136,3 +133,8 @@ class Command(collectstatic.Command):
         else:
             self.log("Pretending to delete '%s'" % path)
         return True
+
+    @staticmethod
+    def _is_s3_backend(backend):
+        return (isinstance(backend, S3BotoStorage)
+                or isinstance(backend, S3Boto3Storage))
