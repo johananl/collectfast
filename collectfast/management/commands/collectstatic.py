@@ -11,12 +11,6 @@ from collectfast.etag import should_copy_file
 from collectfast.boto import reset_connection
 from collectfast import settings
 
-# Backends with which Collectfast should work properly.
-VALID_BACKENDS = [
-    'storages.backends.s3boto3.S3Boto3Storage',
-    'storages.backends.s3boto.S3BotoStorage',
-]
-
 
 class Command(collectstatic.Command):
     def add_arguments(self, parser):
